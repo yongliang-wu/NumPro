@@ -383,7 +383,7 @@ class LongVA:
             and DEFAULT_IMAGE_TOKEN not in context
         ):
             """
-            Three senarios:
+            Three scenarios:
             1. No image, and there for, no image token should be added.
             2. image token is already specified in the context, so we don't need to add it.
             3. image token is not specified in the context and there is image inputs, so we need to add it. In this case, we add the image token at the beginning of the context and add a new line.
