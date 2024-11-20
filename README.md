@@ -1,6 +1,8 @@
 # [Preprint] Number it: Temporal Grounding Videos like Flipping Manga
 This repository contains the PyTorch implementation for the paper [Number it: Temporal Grounding Videos like Flipping Manga](https://arxiv.org/abs/2411.10332).
 
+![Figure 1](./doc/method.png)
+
 If you have any questions on this repository or the related paper, feel free to create an issue.
 
 ## Introduction
