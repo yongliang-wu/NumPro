@@ -3,10 +3,9 @@ This repository contains the PyTorch implementation for the paper [Number it: Te
 
 ![Figure 1](./doc/method.png)
 
-If you have any questions on this repository or the related paper, feel free to create an issue.
-
-## Introduction
 Video Large Language Models (Vid-LLMs) excel in video comprehension but struggle with precise temporal localization. Introducing Number-Prompt (NumPro): a novel method that adds unique numerical identifiers to video frames, transforming Video Temporal Grounding (VTG) into an intuitive process similar to flipping through manga panels. This technique significantly enhances VTG performance without additional computational cost, achieving up to 6.9% improvement in mIoU for moment retrieval and 8.5% in mAP for highlight detection.
+
+If you have any questions on this repository or the related paper, feel free to create an issue. All data corresponding to the paper will be updated at [Google Drive](https://drive.google.com/drive/folders/13NYRDC87Uc4AqaT5FBHA7QkHV5OMl-v8?usp=sharing).
 
 ## Get Started
 ```bash
@@ -16,7 +15,7 @@ conda create -n numpro python=3.10
 conda activate numpro
 pip install -r requirements.txt
 ```
-## Data
+## Data Preparation
 ### Download
 To get started with the data, please follow these steps:
 
@@ -62,19 +61,28 @@ Training requires approximately 35GB of GPU memory per device with batch size 1,
 ![Figure 2](./doc/training_cost.png)
 
 ## Inference
+Please download the annotation files for testing from [Google Drive](https://drive.google.com/drive/folders/11tsL9BjM3xcyaYDN2Af-n6yJfmvWuggv?usp=sharing) and put them into `data` folder.
 ### NumPro-FT
 Download the checkpoint from [Google Drive](https://drive.google.com/drive/folders/1klRwOTQNCU2EPzbA8qB_rMUwzVOFFHYV?usp=sharing) and put it into `checkpoints` folder.
+#### Moment Retrieval
 ```bash
-DATA_PATH="data/charades/videos"
-LORA_PATH="longva_7b_dpo_NumPro_FT"
+LORA_PATH="checkpoints/longva_7b_dpo_NumPro_FT"
 
-python eval_vtg.py \
-    --test_path testset/charades_test.json \
-    --data_path $DATA_PATH --save_path results/${LORA_PATH}_charades.json 
+python eval/numpro_ft_mr.py --lora_path $LORA_PATH
+```
+#### Highlight Detection
+```bash
+python eval/numpro_ft_hd.py --lora_path $LORA_PATH
 ```
 ### NumPro
-
-
+#### Moment Retrieval
+```bash
+python eval/qwen2_vl_7b_mr.py
+```
+#### Highlight Detection
+```bash
+python eval/qwen2_vl_7b_hd.py
+```
 
 ### Results
 You can find the results of NumPro-FT in the [Google Drive](https://drive.google.com/drive/folders/1SQT_jboYlEDvl_fJKbHBb4BOGZDH4YS3?usp=sharing).
@@ -90,4 +98,4 @@ Our implementation is based on the following repositories:
 - https://github.com/xiaoachen98/Open-LLaVA-NeXT
 - https://github.com/LaBaZh/OpenLongVA
 
-We thank the authors for their excellent work.
+We thank the authors for their excellent works.

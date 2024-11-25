@@ -1381,11 +1381,4 @@ def train(attn_implementation=None):
 
 
 if __name__ == "__main__":
-    if(torch.cuda.is_available()):
-        pass
-    else:
-        import torch_npu
-        from torch_npu.contrib import transfer_to_npu
-        import deepspeed
-        import deepspeed_npu
     train()

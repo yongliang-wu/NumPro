@@ -11,22 +11,12 @@ from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
 from qwen_vl_utils import process_vision_info
 from PIL import Image, ImageDraw, ImageFont
 import argparse
-import random
 
 model = Qwen2VLForConditionalGeneration.from_pretrained(
-    "./Qwen2-VL-7B-Instruct", torch_dtype="auto", device_map="auto"
+    "Qwen/Qwen2-VL-7B-Instruct", torch_dtype="auto", device_map="auto"
 )
 
-processor = AutoProcessor.from_pretrained("./Qwen2-VL-7B-Instruct")
-
-
-def seed_everything(seed):
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+processor = AutoProcessor.from_pretrained("Qwen/Qwen2-VL-7B-Instruct")
 
 def annotate_frame_with_pil(frame, text, position, font_size, color):
     frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -59,7 +49,7 @@ def annotate_frame_with_pil(frame, text, position, font_size, color):
     frame = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
     return frame
 
-def annotate_and_save_video(file_path, output_file_path, position, font_size, color, sampling="uniform", ratio=1.0):
+def annotate_and_save_video(file_path, output_file_path, position, font_size, color):
     try:
         cap = cv2.VideoCapture(file_path)
         if not cap.isOpened():
@@ -67,30 +57,25 @@ def annotate_and_save_video(file_path, output_file_path, position, font_size, co
             return
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = cap.get(cv2.CAP_PROP_FPS)
+        target_fps = 1
+        frame_interval = int(fps / target_fps)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_file_path, fourcc, fps, (width, height))
-        
-        if sampling == "uniform":
-            step = total_frames // int(total_frames * ratio)
-            frame_indices = list(range(0, total_frames, step))[:int(total_frames * ratio)]
-        elif sampling == "random":
-            frame_indices = random.sample(range(total_frames), int(total_frames * ratio))
-        else:
-            raise ValueError("Invalid sampling argument")
+        out = cv2.VideoWriter(output_file_path, fourcc, target_fps, (336, 336))
 
-
-        for idx in frame_indices:
+        frame_count = 0
+        while True:
             ret, frame = cap.read()
             if not ret:
-                print(f"Error reading frame at index {idx} from video: {file_path}")
-                continue
-
-            frame = annotate_frame_with_pil(frame, str(idx), position, font_size, color)
-            out.write(frame)
+                break
+                
+            if frame_count % frame_interval == 0:
+                frame = cv2.resize(frame, (336, 336))
+                frame = annotate_frame_with_pil(frame, str(frame_count), position, font_size, color)
+                out.write(frame)
+                
+            frame_count += 1
 
         cap.release()
         out.release()
@@ -98,7 +83,7 @@ def annotate_and_save_video(file_path, output_file_path, position, font_size, co
     except Exception as e:
         print(f"Error processing video {file_path}: {e}")
 
-def process_video_queries(model, processor, data_path, save_path, input_format, instruction, device="cuda", video_path=None, position='top_right', font_size=80, color='red', sampling="uniform", ratio=1.0):
+def process_video_queries(model, processor, data_path, save_path, input_format, instruction, device="cuda", video_path=None, position='top_right', font_size=80, color='red'):
     temp_dir = tempfile.mkdtemp()
     try:
         with open(data_path, 'r') as f:
@@ -121,9 +106,7 @@ def process_video_queries(model, processor, data_path, save_path, input_format, 
                 annotated_video_path,
                 position=position,
                 font_size=font_size,
-                color=color,
-                sampling=sampling,
-                ratio=ratio
+                color=color
             )
 
             input_context = instruction + input_format.format(video_info["query"])
@@ -182,23 +165,19 @@ def process_video_queries(model, processor, data_path, save_path, input_format, 
                 json.dump(responses, f, indent=4)
 
     finally:
-        shutil.rmtree(temp_dir)  # 在所有视频处理完成后删除临时文件夹
+        shutil.rmtree(temp_dir)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_path", type=str, required=True, help="Path to the input JSON file containing video queries.")
-    parser.add_argument("--save_path", type=str, required=True, help="Path to save the output JSON file with responses.")
-    parser.add_argument("--video_path", type=str, required=True, help="Path to the video file.")
-    parser.add_argument("--input_format", type=str, required=True, help="Input format string for the query.")
-    parser.add_argument("--instruction", type=str, required=True, help="Instruction for the model.")
+    parser.add_argument("--data_path", type=str, default="data/charades_test.json", help="Path to the input JSON file containing video queries.")
+    parser.add_argument("--save_path", type=str, default="results/charades_qwen2_vl_7b.json", help="Path to save the output JSON file with responses.")
+    parser.add_argument("--video_path", type=str, default="data/charades/videos", help="Path to the video file.")
+    parser.add_argument("--input_format", type=str, default="During which frames can we see {}? Answer in the format of 'from x to y'.", help="Input format string for the query.")
+    parser.add_argument("--instruction", type=str, default="The red numbers on each frame represent the frame number.", help="Instruction for the model.")
     parser.add_argument("--device", type=str, default="cuda", help="Device to run the model on.")
-    parser.add_argument("--position", type=str, default="top_right", help="Position of the frame number annotation.")
-    parser.add_argument("--font_size", type=int, default=80, help="Font size of the frame number annotation.")
+    parser.add_argument("--position", type=str, default="bottom_right", help="Position of the frame number annotation.")
+    parser.add_argument("--font_size", type=int, default=40, help="Font size of the frame number annotation.")
     parser.add_argument("--color", type=str, default="red", help="Color of the frame number annotation.")
-    parser.add_argument("--sampling", type=str, default="uniform", help="Sampling method for the annotated method.")
-    parser.add_argument("--ratio", type=float, default=1.0, help="Ratio of the video frames to be annotated.")
-    parser.add_argument("--seed", type=int, default=42, help="Seed for random sampling.")
     args = parser.parse_args()
     
-    seed_everything(args.seed)
-    process_video_queries(model, processor, args.data_path, args.save_path, args.input_format, args.instruction, args.device, args.video_path, args.position, args.font_size, args.color, args.sampling, args.ratio)
+    process_video_queries(model, processor, args.data_path, args.save_path, args.input_format, args.instruction, args.device, args.video_path, args.position, args.font_size, args.color)

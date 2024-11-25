@@ -520,10 +520,82 @@ class LongVA:
                 ).encode() + b"\0"
         except Exception as e:
             raise e
+           
 
-def video_demo(model, video_info, data_path, num_sampled_frames, input_format, instruction):
+def annotate_frame_with_pil(frame, text, position, font_size, color):
+    frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(frame)
+    font = ImageFont.truetype("/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf", font_size)
+    
+    width, height = frame.size
+    text_bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = text_bbox[2] - text_bbox[0]
+    text_height = text_bbox[3] - text_bbox[1]
+
+    margin = 0
+    if position == "top_left":
+        x, y = margin, margin
+    elif position == "top_right":
+        x, y = width - text_width - margin, margin
+    elif position == "bottom_left":
+        x, y = margin, height - text_height - margin
+    elif position == "bottom_right":
+        x, y = width - text_width - margin, height - text_height - margin
+    elif position == "center":
+        x, y = (width - text_width) // 2, (height - text_height) // 2
+    else:
+        raise ValueError("Invalid position argument")
+
+    if position in ["bottom_left", "bottom_right"]:
+        y -= text_height / 3
+
+    draw.text((x, y), text, font=font, fill=color)
+    frame = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
+    return frame
+
+def annotate_and_save_video(file_path, output_file_path, position, font_size, color):
+    try:
+        cap = cv2.VideoCapture(file_path)
+        if not cap.isOpened():
+            print(f"Error opening video file: {file_path}")
+            return
+
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        target_fps = 0.5
+        frame_interval = int(fps / target_fps)
+
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_file_path, fourcc, target_fps, (336, 336))
+
+        frame_count = 0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+                
+            if frame_count % frame_interval == 0:
+                # Resize frame to 336x336
+                frame = cv2.resize(frame, (336, 336))
+                frame = annotate_frame_with_pil(frame, str(frame_count), position, font_size, color)
+                out.write(frame)
+                
+            frame_count += 1
+
+        cap.release()
+        out.release()
+
+    except Exception as e:
+        print(f"Error processing video {file_path}: {e}")
+        
+
+def video_demo(model, video_info, data_path, num_sampled_frames, input_format, instruction, position="bottom_right", font_size=40, color="red", temp_dir="temp"):
     visual_path = os.path.join(data_path, video_info["video"])
-    input_visuals = [visual_path]
+    
+    annotated_video_path = os.path.join(temp_dir, video_info['video'])
+    annotate_and_save_video(visual_path, annotated_video_path, position, font_size, color)
+    
+    input_visuals = [annotated_video_path]
     # The frame number is indicated on each frame. 
     # input_format = "Find the video segment that corresponds to the given textual query '{}' and determine its start and end timestamps."
     input_context = input_format.format(video_info["query"])
@@ -556,13 +628,18 @@ if __name__ == "__main__":
     parser.add_argument("--videobackend", type=str, default="all")
     parser.add_argument("--device", type=str, default="cuda:0")
     parser.add_argument("--data_path", type=str, default="data/charades/videos")
-    parser.add_argument("--save_path", type=str, default="results/charades.json")
-    parser.add_argument("--test_path", type=str, default="testset/charades_test.json")
+    parser.add_argument("--save_path", type=str, default="results/charades_numpro_ft.json")
+    parser.add_argument("--test_path", type=str, default="data/charades_test.json")
     parser.add_argument("--model_path", type=str, default="lmms-lab/LongVA-7B-DPO")
     parser.add_argument("--input_format", type=str, default="During which frames can we see {}? Answer in the format of 'from x to y'.")
     parser.add_argument("--instruction", type=str, default="The red numbers on each frame represent the frame number.")
     parser.add_argument("--lora_path", type=str, default=None)
+    parser.add_argument("--position", type=str, default="bottom_right")
+    parser.add_argument("--font_size", type=int, default=40)
+    parser.add_argument("--color", type=str, default="red")
+    parser.add_argument("--temp_dir", type=str, default="temp")
     
+    os.makedirs(args.temp_dir, exist_ok=True)
     args = parser.parse_args()
     videobackend = args.videobackend
     data_path = args.data_path
@@ -570,13 +647,14 @@ if __name__ == "__main__":
     input_format = args.input_format
     instruction = args.instruction
     num_sampled_frames = args.num_sampled_frames
+    position = args.position
+    font_size = args.font_size
+    color = args.color
     model = LongVA(pretrained=model_path, lora_path=args.lora_path, model_name="llava_qwen", device=args.device, device_map=args.device, video_decode_backend=videobackend)
     
-
     testset_path = args.test_path
     save_path = args.save_path
         
-    
     with open(testset_path, 'r') as f:
         video_list = json.load(f)
     
@@ -587,7 +665,9 @@ if __name__ == "__main__":
     for video_info in tqdm(video_list):
         if video_info["id"] in processed_ids:
             continue
-        response = video_demo(model, video_info, data_path, num_sampled_frames, input_format, instruction)
+        response = video_demo(model, video_info, data_path, num_sampled_frames, input_format, instruction, position, font_size, color)
         responses.append(response)
         with open(save_path, 'w') as f:
             json.dump(responses, f, indent=4)
+            
+    shutil.rmtree(temp_dir)
