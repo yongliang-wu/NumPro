@@ -72,6 +72,8 @@ python eval/numpro_ft_mr.py --lora_path $LORA_PATH
 ```
 #### Highlight Detection
 ```bash
+LORA_PATH="checkpoints/longva_7b_dpo_NumPro_FT"
+
 python eval/numpro_ft_hd.py --lora_path $LORA_PATH
 ```
 ### NumPro
@@ -84,10 +86,12 @@ python eval/qwen2_vl_7b_mr.py
 python eval/qwen2_vl_7b_hd.py
 ```
 
-### Results
-You can find the results of NumPro-FT in the [Google Drive](https://drive.google.com/drive/folders/1SQT_jboYlEDvl_fJKbHBb4BOGZDH4YS3?usp=sharing).
+### Evaluation
+We provide the evaluation results of NumPro-FT through [Google Drive](https://drive.google.com/drive/folders/1SQT_jboYlEDvl_fJKbHBb4BOGZDH4YS3?usp=sharing) for reference and comparison.
 
-Note: The results of NumPro-FT are processed at 0.5 FPS. To obtain the corresponding results at 1 FPS, please multiply the frame numbers by 2.
+Important Note: All results are processed at 0.5 frames per second (FPS). To convert to 1 FPS timestamps, simply multiply the frame numbers by 2.
+
+For evaluation metrics and implementation details, please refer to the evaluation code from [TimeChat](https://github.com/RenShuhuai-Andy/TimeChat).
 
 ## Acknowledgement
 Our implementation is based on the following repositories:
