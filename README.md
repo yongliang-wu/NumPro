@@ -58,8 +58,6 @@ sh scripts/train.sh
 ```
 Training requires approximately 35GB of GPU memory per device with batch size 1, and takes around 24 hours to complete 3 epochs when using 8 NVIDIA H800 GPUs.
 
-![Figure 2](./doc/training_cost.png)
-
 ## Inference
 Please download the annotation files for testing from [Google Drive](https://drive.google.com/drive/folders/11tsL9BjM3xcyaYDN2Af-n6yJfmvWuggv?usp=sharing) and put them into `data` folder.
 ### NumPro-FT
