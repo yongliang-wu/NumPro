@@ -9,25 +9,78 @@ If you have any questions on this repository or the related paper, feel free to 
 Video Large Language Models (Vid-LLMs) excel in video comprehension but struggle with precise temporal localization. Introducing Number-Prompt (NumPro): a novel method that adds unique numerical identifiers to video frames, transforming Video Temporal Grounding (VTG) into an intuitive process similar to flipping through manga panels. This technique significantly enhances VTG performance without additional computational cost, achieving up to 6.9% improvement in mIoU for moment retrieval and 8.5% in mAP for highlight detection.
 
 ## Get Started
-
+```bash
+git clone https://github.com/yongliangwu/NumPro.git
+cd NumPro
+conda create -n numpro python=3.10
+conda activate numpro
+pip install -r requirements.txt
+```
 ## Data
-Please download the video data from [Charades-STA](http://vuchallenge.org/charades.html), [DiDeMo](https://github.com/LisaAnne/TemporalLanguageRelease) and [ActivityNet](http://activity-net.org/download.html).
+### Download
+To get started with the data, please follow these steps:
 
-The instruction dataset for training can be found at [Google Drive](https://drive.google.com/drive/folders/13NYRDC87Uc4AqaT5FBHA7QkHV5OMl-v8?usp=sharing).
+1. Download the video datasets from:
+   - [Charades-STA](http://vuchallenge.org/charades.html)
+   - [DiDeMo](https://github.com/LisaAnne/TemporalLanguageRelease) 
+   - [ActivityNet](http://activity-net.org/download.html)
+   - [QVHighlights](https://github.com/jayleicn/moment_detr)
 
-Note: We also use the instruction dataset from [VTimeLLM](https://github.com/huangb23/VTimeLLM) stage2 and stage3, due to the copyright issue of youtube, we cannot provide source video here. You can download through [yt-dlp](https://github.com/yt-dlp/yt-dlp) by yourself.
-## Train
+2. Extract all downloaded datasets into the `data` folder.
+
+3. Download our instruction dataset for training from [Google Drive](https://drive.google.com/file/d/1X4VSdSpGEBeRDVGaZq6HsUjJxUj88jDc/view?usp=sharing) and put it into `data` folder.
+
+Note: Our training also incorporates instruction datasets from [VTimeLLM](https://github.com/huangb23/VTimeLLM) stages 2 and 3. Due to YouTube copyright restrictions, we are unable to directly distribute the source videos. However, you can download these videos yourself using [yt-dlp](https://github.com/yt-dlp/yt-dlp). If you encounter any difficulties or need help with this process, please don't hesitate to open an issue.
+
+### Preprocess
+For training NumPro-FT, we need to extract the frames from the videos at 0.5 FPS and add numbers to them. We provide the code for this process in the `preprocess` folder.
+```bash
+python preprocess/anet.py
+python preprocess/didemo.py
+python preprocess/internvid.py
+```
+Please make sure all the folder paths are set correctly.
+
+## Training NumPro-FT
+To begin, download the required model checkpoints and place them in the `pretrained` folder:
+1. LongVA-7B-DPO model from [Hugging Face](https://huggingface.co/lmms-lab/LongVA-7B-DPO)
+2. CLIP vision encoder from [OpenAI](https://huggingface.co/openai/clip-vit-large-patch14-336)
+
+You can use the following commands to download them:
+
+```bash
+huggingface-cli download lmms-lab/LongVA-7B-DPO --local-dir ./pretrained/LongVA-7B-DPO
+huggingface-cli download openai/clip-vit-large-patch14-336 --local-dir ./pretrained/clip-vit-large-patch14-336
+```
+
+Then, you can start training with the following command:
+```bash
+sh scripts/train.sh
+```
+Training requires approximately 35GB of GPU memory per device with batch size 1, and takes around 24 hours to complete 3 epochs when using 8 NVIDIA H800 GPUs.
+
+![Figure 2](./doc/training_cost.png)
 
 ## Inference
-The checkpoints and results can be found at [Google Drive](https://drive.google.com/drive/folders/13NYRDC87Uc4AqaT5FBHA7QkHV5OMl-v8?usp=sharing).
+### NumPro-FT
+Download the checkpoint from [Google Drive](https://drive.google.com/drive/folders/1klRwOTQNCU2EPzbA8qB_rMUwzVOFFHYV?usp=sharing) and put it into `checkpoints` folder.
 ```bash
-DATA_PATH="charades/videos"
+DATA_PATH="data/charades/videos"
 LORA_PATH="longva_7b_dpo_NumPro_FT"
 
 python eval_vtg.py \
     --test_path testset/charades_test.json \
     --data_path $DATA_PATH --save_path results/${LORA_PATH}_charades.json 
 ```
+### NumPro
+
+
+
+### Results
+You can find the results of NumPro-FT in the [Google Drive](https://drive.google.com/drive/folders/1SQT_jboYlEDvl_fJKbHBb4BOGZDH4YS3?usp=sharing).
+
+Note: The results of NumPro-FT are processed at 0.5 FPS. To obtain the corresponding results at 1 FPS, please multiply the frame numbers by 2.
+
 ## Acknowledgement
 Our implementation is based on the following repositories:
 
