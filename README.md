@@ -87,9 +87,9 @@ python eval/qwen2_vl_7b_hd.py
 ### Evaluation
 We provide the evaluation results of NumPro-FT through [Google Drive](https://drive.google.com/drive/folders/1SQT_jboYlEDvl_fJKbHBb4BOGZDH4YS3?usp=sharing) for reference and comparison.
 
-Important Note: All results are processed at 0.5 frames per second (FPS). To convert to 1 FPS timestamps, simply multiply the frame numbers by 2.
-
 For evaluation metrics and implementation details, please refer to the evaluation code from [TimeChat](https://github.com/RenShuhuai-Andy/TimeChat).
+
+Important Note: All results are processed at 0.5 frames per second (FPS). To convert to 1 FPS timestamps, simply multiply the frame numbers by 2.
 
 ## Acknowledgement
 Our implementation is based on the following repositories:
