@@ -1,11 +1,16 @@
-# [Preprint] Number it: Temporal Grounding Videos like Flipping Manga
-This repository contains the PyTorch implementation for the paper [Number it: Temporal Grounding Videos like Flipping Manga](https://arxiv.org/abs/2411.10332).
+<h2 align="center">Number it: Temporal Grounding Videos like Flipping Manga</h2>
+
+
+<div style='display:flex; gap: 0.25rem; '>
+<a href='https://arxiv.org/abs/2411.10332'><img src='https://img.shields.io/badge/Paper-PDF-red'></a>
+<a href='https://huggingface.co/datasets/Liang0223/NumPro_FT'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-blue'></a> 
+</div>
 
 ![Figure 1](./doc/method.png)
 
 Video Large Language Models (Vid-LLMs) excel in video comprehension but struggle with precise temporal localization. Introducing Number-Prompt (NumPro): a novel method that adds unique numerical identifiers to video frames, transforming Video Temporal Grounding (VTG) into an intuitive process similar to flipping through manga panels. This technique significantly enhances VTG performance without additional computational cost, achieving up to 6.9% improvement in mIoU for moment retrieval and 8.5% in mAP for highlight detection.
 
-If you have any questions on this repository or the related paper, feel free to create an issue. All data corresponding to the paper will be updated at [Google Drive](https://drive.google.com/drive/folders/13NYRDC87Uc4AqaT5FBHA7QkHV5OMl-v8?usp=sharing).
+Note: If you have any questions on this repository or the related paper, feel free to create an issue. All data corresponding to the paper will be updated at [Google Drive](https://drive.google.com/drive/folders/13NYRDC87Uc4AqaT5FBHA7QkHV5OMl-v8?usp=sharing).
 
 ## Get Started
 ```bash
@@ -29,7 +34,7 @@ To get started with the data, please follow these steps:
 
 3. Download our instruction dataset for training from [Google Drive](https://drive.google.com/file/d/1X4VSdSpGEBeRDVGaZq6HsUjJxUj88jDc/view?usp=sharing) and put it into `data` folder.
 
-Note: Our training also incorporates instruction datasets from [VTimeLLM](https://github.com/huangb23/VTimeLLM) stages 2 and 3. Due to YouTube copyright restrictions, we are unable to directly distribute the source videos. However, you can download these videos yourself using [yt-dlp](https://github.com/yt-dlp/yt-dlp). If you encounter any difficulties or need help with this process, please don't hesitate to open an issue.
+Note: For convenience, we have uploaded all the training videos (sampled at 1 FPS) to [Hugging Face](https://huggingface.co/datasets/Liang0223/NumPro_FT).
 
 ### Preprocess
 For training NumPro-FT, we need to extract the frames from the videos at 0.5 FPS and add numbers to them. We provide the code for this process in the `preprocess` folder.
