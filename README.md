@@ -6,6 +6,12 @@
 <a href='https://huggingface.co/datasets/Liang0223/NumPro_FT'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-blue'></a> 
 </div>
 
+## News
+
+* :fire: [2025.2.26] Our paper is accepted by CVPR 2025 !
+
+## Introduction
+
 ![Figure 1](./doc/method.png)
 
 Video Large Language Models (Vid-LLMs) excel in video comprehension but struggle with precise temporal localization. Introducing Number-Prompt (NumPro): a novel method that adds unique numerical identifiers to video frames, transforming Video Temporal Grounding (VTG) into an intuitive process similar to flipping through manga panels. This technique significantly enhances VTG performance without additional computational cost, achieving up to 6.9% improvement in mIoU for moment retrieval and 8.5% in mAP for highlight detection.
