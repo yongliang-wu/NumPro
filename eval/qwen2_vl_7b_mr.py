@@ -11,9 +11,10 @@ from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
 from qwen_vl_utils import process_vision_info
 from PIL import Image, ImageDraw, ImageFont
 import argparse
+import torch
 
 model = Qwen2VLForConditionalGeneration.from_pretrained(
-    "Qwen/Qwen2-VL-7B-Instruct", torch_dtype="auto", device_map="auto"
+    "Qwen/Qwen2-VL-7B-Instruct", torch_dtype=torch.bfloat16, device_map="auto", attn_implementation="flash_attention_2"
 )
 
 processor = AutoProcessor.from_pretrained("Qwen/Qwen2-VL-7B-Instruct")
@@ -57,23 +58,21 @@ def annotate_and_save_video(file_path, output_file_path, position, font_size, co
             return
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = cap.get(cv2.CAP_PROP_FPS)
-        target_fps = 1
-        frame_interval = int(fps / target_fps)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_file_path, fourcc, target_fps, (336, 336))
+        out = cv2.VideoWriter(output_file_path, fourcc, fps, (width, height))
 
         frame_count = 0
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
-                
-            if frame_count % frame_interval == 0:
-                frame = cv2.resize(frame, (336, 336))
+            if add_num:
                 frame = annotate_frame_with_pil(frame, str(frame_count), position, font_size, color)
-                out.write(frame)
+            out.write(frame)
                 
             frame_count += 1
 
