@@ -102,6 +102,17 @@ For evaluation metrics and implementation details, please refer to the evaluatio
 
 Important Note: All results are processed at 0.5 frames per second (FPS). To convert to 1 FPS timestamps, simply multiply the frame numbers by 2.
 
+## Citation
+
+```bibtex
+@article{wu2024number,
+  title={Number it: Temporal Grounding Videos like Flipping Manga},
+  author={Wu, Yongliang and Hu, Xinting and Sun, Yuyang and Zhou, Yizhou and Zhu, Wenbo and Rao, Fengyun and Schiele, Bernt and Yang, Xu},
+  journal={arXiv preprint arXiv:2411.10332},
+  year={2024}
+}
+```
+
 ## Acknowledgement
 Our implementation is based on the following repositories:
 
