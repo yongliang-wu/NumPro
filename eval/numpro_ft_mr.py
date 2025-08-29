@@ -562,23 +562,28 @@ def annotate_and_save_video(file_path, output_file_path, position, font_size, co
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         fps = cap.get(cv2.CAP_PROP_FPS)
-        target_fps = 0.5
-        frame_interval = int(fps / target_fps)
+        # target_fps = 0.5
+        # frame_interval = int(fps / target_fps)
+
+        sample_interval = int(fps * 2) 
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_file_path, fourcc, target_fps, (336, 336))
+        out = cv2.VideoWriter(output_file_path, fourcc, 0.5, (336, 336))
 
         frame_count = 0
+        frame_number = 0
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
                 
-            if frame_count % frame_interval == 0:
+            if frame_count % sample_interval == 0:
                 # Resize frame to 336x336
                 frame = cv2.resize(frame, (336, 336))
-                frame = annotate_frame_with_pil(frame, str(frame_count), position, font_size, color)
+                frame = annotate_frame_with_pil(frame, str(frame_number), position, font_size, color)
+                
                 out.write(frame)
+                frame_number += 1
                 
             frame_count += 1
 
