@@ -70,8 +70,7 @@ def annotate_and_save_video(file_path, output_file_path, position, font_size, co
             ret, frame = cap.read()
             if not ret:
                 break
-            if add_num:
-                frame = annotate_frame_with_pil(frame, str(frame_count), position, font_size, color)
+            frame = annotate_frame_with_pil(frame, str(frame_count), position, font_size, color)
             out.write(frame)
                 
             frame_count += 1
@@ -171,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", type=str, default="data/charades_test.json", help="Path to the input JSON file containing video queries.")
     parser.add_argument("--save_path", type=str, default="results/charades_qwen2_vl_7b.json", help="Path to save the output JSON file with responses.")
     parser.add_argument("--video_path", type=str, default="data/charades/videos", help="Path to the video file.")
-    parser.add_argument("--input_format", type=str, default="During which frames can we see {}? Answer in the format of 'from x to y'.", help="Input format string for the query.")
+    parser.add_argument("--input_format", type=str, default="During which frames can we see {}? Answer in the format: 'From Frame x to Frame y'.", help="Input format string for the query.")
     parser.add_argument("--instruction", type=str, default="The red numbers on each frame represent the frame number.", help="Instruction for the model.")
     parser.add_argument("--device", type=str, default="cuda", help="Device to run the model on.")
     parser.add_argument("--position", type=str, default="bottom_right", help="Position of the frame number annotation.")
