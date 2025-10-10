@@ -636,7 +636,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_path", type=str, default="results/charades_numpro_ft.json")
     parser.add_argument("--test_path", type=str, default="data/charades_test.json")
     parser.add_argument("--model_path", type=str, default="lmms-lab/LongVA-7B-DPO")
-    parser.add_argument("--input_format", type=str, default="During which frames can we see {}? Answer in the format of 'from x to y'.")
+    parser.add_argument("--input_format", type=str, default="During which frames can we see {}? Answer in the format: 'From Frame x to Frame y'.")
     parser.add_argument("--instruction", type=str, default="The red numbers on each frame represent the frame number.")
     parser.add_argument("--lora_path", type=str, default=None)
     parser.add_argument("--position", type=str, default="bottom_right")
