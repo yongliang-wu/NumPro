@@ -14,7 +14,9 @@
 
 ![Figure 1](./doc/method.png)
 
-Video Large Language Models (Vid-LLMs) excel in video comprehension but struggle with precise temporal localization. Introducing Number-Prompt (NumPro): a novel method that adds unique numerical identifiers to video frames, transforming Video Temporal Grounding (VTG) into an intuitive process similar to flipping through manga panels. This technique significantly enhances VTG performance without additional computational cost, achieving up to 6.9% improvement in mIoU for moment retrieval and 8.5% in mAP for highlight detection.
+Video Large Language Models (Vid-LLMs) excel in video comprehension but struggle with precise temporal localization. Despite the strong video understanding capabilities of recent state-of-the-art models (e.g., Gemini), precise temporal grounding remains challenging due to the need for fine-grained temporal alignment.
+
+Introducing Number-Prompt (NumPro): a novel method that adds unique numerical identifiers to video frames, transforming Video Temporal Grounding (VTG) into an intuitive process similar to flipping through manga panels. This technique significantly enhances VTG performance without additional computational cost, achieving up to 6.9% improvement in mIoU for moment retrieval and 8.5% in mAP for highlight detection.
 
 Note: If you have any questions on this repository or the related paper, feel free to create an issue. All data corresponding to the paper will be updated at [Google Drive](https://drive.google.com/drive/folders/13NYRDC87Uc4AqaT5FBHA7QkHV5OMl-v8?usp=sharing).
 
