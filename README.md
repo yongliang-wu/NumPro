@@ -22,7 +22,7 @@ Note: If you have any questions on this repository or the related paper, feel fr
 
 ## Get Started
 ```bash
-git clone https://github.com/yongliangwu/NumPro.git
+git clone https://github.com/yongliang-wu/NumPro.git
 cd NumPro
 conda create -n numpro python=3.10
 conda activate numpro
