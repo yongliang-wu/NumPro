@@ -3,3 +3,4 @@ results/
 temp/
 data/
 pretrained/
+__pycache__/
